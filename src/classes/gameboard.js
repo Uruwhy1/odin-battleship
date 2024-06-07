@@ -9,7 +9,7 @@ export default class Board {
     this.ships = [];
   }
 
-  placeShip(coordArr, length, direction) {
+  placeShip(coordArr, length, direction, player) {
     const x = coordArr[0];
     const y = coordArr[1];
 
@@ -24,6 +24,10 @@ export default class Board {
       let placeY = direction === 'vertical' ? y + i : y;
 
       this.board[placeX][placeY] = newShip;
+
+      if (player == 'human') {
+        this.__updateDOMCell(placeX, placeY);
+      }
     }
     return true;
   }
@@ -49,13 +53,25 @@ export default class Board {
 
     return true;
   }
+  __updateDOMCell(x, y) {
+    const cell = document.querySelector(
+      `.left-player .board .cell[data-row="${x}"][data-col="${y}"]`,
+    );
+    if (cell) {
+      cell.classList.add('ship');
+    }
+  }
 
   receiveAttack(x, y) {
     if (x > 9 || y > 9 || x < 0 || y < 0) return null;
-    if (this.memory.some(([memX, memY]) => memX === x && memY === y)) return null;
-    if (this.board[x][y] == null) return false;
-    else {
-      this.memory.push([x, y]);
+    if (this.memory.some(([memX, memY]) => memX === x && memY === y))
+      return null;
+    this.memory.push([x, y]);
+
+
+    if (this.board[x][y] === null) {
+      return false;
+    } else {
       this.board[x][y].hit();
       this.__checkShips();
       return true;
@@ -63,9 +79,9 @@ export default class Board {
   }
 
   __checkShips() {
-    if (this.ships.every(ship => ship.isSunk())) {
-      alert("ALL SHIPS SUNK")
+    if (this.ships.every((ship) => ship.isSunk())) {
+      alert('ALL SHIPS SUNK');
       return true;
-    };
+    }
   }
 }

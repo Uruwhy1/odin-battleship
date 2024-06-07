@@ -1,12 +1,4 @@
 {
   "singleQuote": true,
-  "tabWidth": 2,
-  "overrides": [
-    {
-      "files": ["*.css", "*.html"],
-      "options": {
-        "tabWidth": 4
-      }
-    }
-  ]
+  "tabWidth": 2
 }

@@ -1,21 +1,121 @@
+@import url('https://fonts.googleapis.com/css?family=Kode+Mono&display=swap');
+
+* {
+  box-sizing: border-box;
+}
+
 body {
   width: 100vw;
   height: 100vh;
   margin: 0;
   padding: 0;
+
+
+  font-family: 'Kode Mono';
+  font-size: 15px;
 }
 .container {
   width: 100%;
   height: 100%;
 
   display: grid;
-  grid-template-rows: 96%;
-  grid-template-areas: 
-  'main'
-  'footer';
+  grid-template-rows: 96% 4%;
+  grid-template-areas:
+    'main'
+    'footer';
 }
 
+/* FOOTER STYLING */
 .footer {
   grid-area: footer;
-  background-color: #000;
+  background-color: #6c5b7b;
+
+  color: #fff;
+
+  display: flex;
+  justify-content: center;
+  align-items: center;
 }
+.footer .text {
+  display: flex;
+  gap: 5px;
+  justify-content: center;
+  align-items: center;
+
+  color: #fff;
+  background-color: #000;
+  padding: 5px;
+  height: 50%;
+}
+
+.footer a {
+  color: rgb(124, 251, 255);
+  text-decoration: none;
+}
+.footer a:hover {
+  text-decoration: underline;
+}
+/* ---------------- */
+
+.main-area {
+  grid-area: main;
+  background-color: #6c5b7b;
+
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 50px;
+}
+.player {
+  background-color: #c06c84;
+  width: 400px;
+  height: fit-content;
+  padding: 20px 0;
+
+  text-align: center;
+  color: yellow;
+
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+}
+.player h1 {
+  color: #fff;
+  font-weight: 300;
+
+  background-color: #000;
+  padding: 5px;
+  margin: 0 0 20px 0;
+}
+
+.board {
+  background-color: #355c7d;
+  border: 1px solid #fff;
+
+  width: 340px;
+  height: 340px;
+
+  display: grid;
+  grid-auto-flow: column;
+  grid-template-columns: 34px;
+}
+.column {
+  display: flex;
+  flex-direction: column;
+}
+.ship {
+  background-color: yellow;
+}
+.hit {
+  background-color: red;
+}
+.missed {
+  background-color: gray;
+}
+
+/*
+6c5b7b
+355c7d
+c06c84
+*/
