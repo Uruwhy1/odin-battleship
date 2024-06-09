@@ -48,7 +48,8 @@ document.addEventListener('DOMContentLoaded', () => {
     computerMove();
   });
 
-  const lastMoveMemory = [];
+  let lastMoveMemory = [];
+  let lastDirection = [];
   let forgetMoveCounter = 0;
 
   function computerMove() {
@@ -56,7 +57,11 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // if previous hits array is not empty
     if (lastMoveMemory.length > 0) {
-      let [lastX, lastY] = lastMoveMemory[lastMoveMemory.length - 1];
+      let [lastX, lastY] = lastMoveMemory[0];
+
+      if (lastMoveMemory > 2) {
+        [lastX, lastY] = lastMoveMemory[lastMoveMemory.length - 1];
+      }
 
       const directions = [
         [0, 1], // right
@@ -65,30 +70,57 @@ document.addEventListener('DOMContentLoaded', () => {
         [-1, 0], // left
       ];
 
-      for (const [dx, dy] of directions) {
-        const newX = lastX + dx;
-        const newY = lastY + dy;
+      if (lastDirection.length == 0) {
+        for (const [dx, dy] of directions) {
+          const newX = lastX + dx;
+          const newY = lastY + dy;
 
-        // check adjacent cell
-        if (
-          newX >= 0 &&
-          newX < 10 &&
-          newY >= 0 &&
-          newY < 10 &&
-          !humanPlayer.board.memory.some(
-            ([memX, memY]) => memX === newX && memY === newY,
-          )
-        ) {
-          x = newX;
-          y = newY;
-          break; // valid adjacent cell
+          // check adjacent cell
+          if (
+            newX >= 0 &&
+            newX < 10 &&
+            newY >= 0 &&
+            newY < 10 &&
+            !humanPlayer.board.memory.some(
+              ([memX, memY]) => memX === newX && memY === newY,
+            )
+          ) {
+            lastDirection.push([dx, dy])
+            lastDirection.push([-dx, -dy])
+
+            x = newX;
+            y = newY;
+            break; // valid adjacent cell
+          }
+        }
+      } else {
+        for (const [dx, dy] of lastDirection) {
+          const newX = lastX + dx;
+          const newY = lastY + dy;
+
+          // check adjacent cell
+          if (
+            newX >= 0 &&
+            newX < 10 &&
+            newY >= 0 &&
+            newY < 10 &&
+            !humanPlayer.board.memory.some(
+              ([memX, memY]) => memX === newX && memY === newY,
+            )
+          ) {
+            x = newX;
+            y = newY;
+
+            console.log("xD")
+            break; // valid adjacent cell
+          }
         }
       }
     }
 
     // if no adjacent cell, or no previous hit
     if ((x === undefined || y === undefined) && lastMoveMemory.length > 0) {
-      lastMoveMemory.pop();
+      lastMoveMemory.shift();
       computerMove();
       return;
     }
@@ -112,11 +144,16 @@ document.addEventListener('DOMContentLoaded', () => {
     } else {
       cell.classList.add('missed');
       forgetMoveCounter++;
+      lastDirection.shift();
+    }
+
+    if (forgetMoveCounter >= 2) {
+      lastDirection = [];
     }
 
     // forget last move if too many misses in a row
     if (forgetMoveCounter >= 4) {
-      lastMoveMemory.pop(); //
+      lastMoveMemory.shift(); //
       forgetMoveCounter = 0; //
     }
 
