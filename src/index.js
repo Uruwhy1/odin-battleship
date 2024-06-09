@@ -1,11 +1,66 @@
+import Board from './classes/gameboard';
 import Player from './classes/player';
 import { createBoard } from './manipulatorDOM';
 import './styles.css';
 
 document.addEventListener('DOMContentLoaded', () => {
-  const startButton = document.querySelector('.create-game');
-  startButton.addEventListener('click', () => {
-    createGame();
+  const placementWindow = document.querySelector('.placement');
+  const placeButton = document.querySelector('.change-positions');
+
+  placeButton.addEventListener('click', () => {
+    placementWindow.style.display = 'flex';
+    placeButton.style.display = 'none';
+  });
+
+  const placementBoard = document.querySelector('.placement .board');
+  let placementBoardBoard = new Board();
+  const directionButton = document.querySelector('.direction');
+  const resetButton = document.querySelector('.reset');
+
+  createBoard(placementBoard);
+
+  let count = 6;
+  let direction = 'vertical';
+
+  resetButton.addEventListener('click', () => {
+    createBoard(placementBoard);
+    count = 6;
+    placementBoardBoard = new Board();
+  })
+  
+  directionButton.addEventListener('click', () => {
+    if (direction == 'vertical') {
+      direction = 'horizontal';
+      directionButton.textContent = 'horizontal'
+    } else {
+      direction = 'vertical';
+      directionButton.textContent = 'vertical'
+    }
+  })
+
+  placementBoard.addEventListener('click', (event) => {
+    if (count == 0) {
+      return null
+    }
+    const cell = event.target;
+    const x = parseInt(cell.dataset.row);
+    const y = parseInt(cell.dataset.col);
+
+    if (placementBoardBoard.placeShip([x, y], count, direction, 'human')) {
+      count--;
+    } else {
+      return null
+    }
+  });
+
+
+  const startButtons = document.querySelectorAll('.create-game');
+  startButtons.forEach((button) => {
+    button.addEventListener('click', () => {
+      placementWindow.style.display = 'none';
+      placeButton.style.display = 'block';
+      createGame(placementBoardBoard);
+    });
   });
 });
 
@@ -27,9 +82,7 @@ function handleBoardClick(event) {
   const x = parseInt(cell.dataset.row);
   const y = parseInt(cell.dataset.col);
   if (
-    computerPlayer.board.memory.some(
-      ([memX, memY]) => memX === x && memY === y,
-    )
+    computerPlayer.board.memory.some(([memX, memY]) => memX === x && memY === y)
   ) {
     return;
   }
@@ -43,13 +96,13 @@ function handleBoardClick(event) {
   computerMove(humanPlayer);
 }
 
-function createGame() {
+function createGame(humanBoard) {
   humanBoardElement = document.querySelector('.left-player .board');
   computerBoardElement = document.querySelector('.right-player .board');
 
   // RESET BOARD AND GAME STATE
-  humanBoardElement.innerHTML = "";
-  computerBoardElement.innerHTML = "";
+  humanBoardElement.innerHTML = '';
+  computerBoardElement.innerHTML = '';
   computerBoardElement.removeEventListener('click', handleBoardClick);
 
   lastMoveMemory = [];
@@ -59,11 +112,8 @@ function createGame() {
 
   createBoard(humanBoardElement);
   humanPlayer = new Player('human');
-  humanPlayer.placeShip([0, 3], 5, 'horizontal');
-  humanPlayer.placeShip([5, 0], 2, 'vertical');
-  humanPlayer.placeShip([7, 2], 4, 'vertical');
-  humanPlayer.placeShip([0, 5], 3, 'horizontal');
-  humanPlayer.placeShip([9, 0], 6, 'vertical');
+  humanPlayer.board = humanBoard;
+  console.log(humanPlayer.board);
 
   computerPlayer = new Player('computer');
   computerPlayer.board.placeShipRandomly(5);
@@ -71,6 +121,7 @@ function createGame() {
   computerPlayer.board.placeShipRandomly(2);
   computerPlayer.board.placeShipRandomly(4);
   computerPlayer.board.placeShipRandomly(6);
+  computerPlayer.board.placeShipRandomly(1);
 
   createBoard(computerBoardElement, computerPlayer);
 

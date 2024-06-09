@@ -63,13 +63,13 @@ export default class Board {
     return true;
   }
   __updateDOMCell(x, y) {
-    const cell = document.querySelector(
-      `.left-player .board .cell[data-row="${x}"][data-col="${y}"]`,
+    const cell = document.querySelectorAll(
+      `.player-board .cell[data-row="${x}"][data-col="${y}"]`,
     );
-    if (cell) {
-      cell.classList.add('ship');
-    }
-  }
+    cell.forEach(element => {
+      element.classList.add('ship');
+    });
+    };
 
   receiveAttack(x, y) {
     if (x > 9 || y > 9 || x < 0 || y < 0) return null;

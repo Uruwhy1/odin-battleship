@@ -1,4 +1,6 @@
 export function createBoard(boardElement) {
+  boardElement.innerHTML = '';
+
   for (let col = 0; col < 10; col++) {
     const column = document.createElement('div');
     column.classList.add('column');
@@ -13,8 +15,6 @@ export function createBoard(boardElement) {
       cell.style.height = '34px';
       cell.style.border = '1px solid #fff';
       column.appendChild(cell);
-
-    
     }
 
     boardElement.appendChild(column);

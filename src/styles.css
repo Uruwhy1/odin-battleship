@@ -143,10 +143,11 @@ c06c84
   height: 50px;
 
   display: flex;
+  gap: 50px;
   justify-content: center;
 }
-.game-settings button {
-  width: 110px;
+button {
+  width: 156px;
   height: 45px;
 
   border-radius: 0;
@@ -160,10 +161,31 @@ c06c84
 
   transition: 0.1s;
 }
-.game-settings button:hover {
+button:hover {
   transform: scale(1.1);
   cursor: pointer;
 }
-.game-settings button:active {
+button:active {
   transform: scale(1.0);
+}
+
+.direction, .reset {
+  background-color: var(--pink);
+}
+
+/* ------------------------ */
+
+/* PLACEMENT WINDOW */
+.placement {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+
+  background-color: var(--purple);
+
+  display: flex;
+  gap: 50px;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
 }
