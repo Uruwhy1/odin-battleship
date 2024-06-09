@@ -9,10 +9,19 @@ export default class Board {
     this.ships = [];
   }
 
+  placeShipRandomly(length) {
+    let placed = false;
+    while (!placed) {
+      const orientation = Math.random() < 0.5 ? 'horizontal' : 'vertical';
+      const row = Math.floor(Math.random() * 10);
+      const col = Math.floor(Math.random() * 10);
+      placed = this.placeShip([row, col], length, orientation);
+    }
+  }
+
   placeShip(coordArr, length, direction, player) {
     const x = coordArr[0];
     const y = coordArr[1];
-
     if (!this.__checkCoordinates(x, y, length, direction)) {
       return false; // invalid ship placement;
     }

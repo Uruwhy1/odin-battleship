@@ -14,10 +14,10 @@ document.addEventListener('DOMContentLoaded', () => {
   humanPlayer.placeShip([9, 0], 6, 'vertical'); // Place a ship for testing
 
   const computerPlayer = new Player('computer');
-  computerPlayer.placeShip([0, 3], 5, 'horizontal'); // Place a ship for testing
-  computerPlayer.placeShip([5, 0], 2, 'vertical'); // Place a ship for testing
-  computerPlayer.placeShip([7, 2], 4, 'vertical'); // Place a ship for testing
-  computerPlayer.placeShip([9, 0], 6, 'vertical'); // Place a ship for testing
+  computerPlayer.board.placeShipRandomly(5);
+  computerPlayer.board.placeShipRandomly(2);
+  computerPlayer.board.placeShipRandomly(4);
+  computerPlayer.board.placeShipRandomly(6);
 
   createBoard(computerBoardElement, computerPlayer);
 
@@ -54,11 +54,10 @@ document.addEventListener('DOMContentLoaded', () => {
   function computerMove() {
     let x, y;
 
-    
     // if previous hits array is not empty
     if (lastMoveMemory.length > 0) {
-      const [lastX, lastY] = lastMoveMemory[0];
-      
+      let [lastX, lastY] = lastMoveMemory[lastMoveMemory.length - 1];
+
       const directions = [
         [0, 1], // right
         [1, 0], // down
@@ -89,9 +88,9 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // if no adjacent cell, or no previous hit
     if ((x === undefined || y === undefined) && lastMoveMemory.length > 0) {
-      lastMoveMemory.shift();
-      computerMove()
-      return
+      lastMoveMemory.pop();
+      computerMove();
+      return;
     }
     if (x === undefined || y === undefined) {
       do {
@@ -117,7 +116,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // forget last move if too many misses in a row
     if (forgetMoveCounter >= 4) {
-      lastMoveMemory.pop(); // 
+      lastMoveMemory.pop(); //
       forgetMoveCounter = 0; //
     }
 
