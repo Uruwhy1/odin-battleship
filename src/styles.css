@@ -4,6 +4,12 @@
   box-sizing: border-box;
 }
 
+:root {
+  --blue: #355c7d;
+  --purple: #6c5b7b;
+  --pink: #c06c84;
+}
+
 body {
   width: 100vw;
   height: 100vh;
@@ -28,7 +34,7 @@ body {
 /* FOOTER STYLING */
 .footer {
   grid-area: footer;
-  background-color: #6c5b7b;
+  background-color: var(--purple);
 
   color: #fff;
 
@@ -57,17 +63,24 @@ body {
 }
 /* ---------------- */
 
+/* BOARDS STYLING */
 .main-area {
   grid-area: main;
-  background-color: #6c5b7b;
+  background-color: var(--purple);
 
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+}
+.board-area {
   display: flex;
   justify-content: center;
   align-items: center;
   gap: 50px;
 }
 .player {
-  background-color: #c06c84;
+  background-color: var(--pink);
   width: 400px;
   height: fit-content;
   padding: 20px 0;
@@ -90,7 +103,7 @@ body {
 }
 
 .board {
-  background-color: #355c7d;
+  background-color: var(--blue);
   border: 1px solid #fff;
 
   width: 340px;
@@ -119,3 +132,38 @@ body {
 355c7d
 c06c84
 */
+
+/* -------------------------- */
+
+/* BUTTONS STYLING */
+.game-settings {
+  padding-top: 50px;
+
+  width: 500px;
+  height: 50px;
+
+  display: flex;
+  justify-content: center;
+}
+.game-settings button {
+  width: 110px;
+  height: 45px;
+
+  border-radius: 0;
+  border: 1px solid #fff;
+
+  background-color: var(--blue);
+  color: #fff;
+
+  font: inherit;
+  font-size: 1.3em;
+
+  transition: 0.1s;
+}
+.game-settings button:hover {
+  transform: scale(1.1);
+  cursor: pointer;
+}
+.game-settings button:active {
+  transform: scale(1.0);
+}
