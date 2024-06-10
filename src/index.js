@@ -3,6 +3,19 @@ import Player from './classes/player';
 import { createBoard } from './manipulatorDOM';
 import './styles.css';
 
+export const gameState = {
+  lastMoveMemory: [],
+  lastDirection: [],
+  forgetMoveCounter: 0,
+  computerBoardElement: null,
+  humanBoardElement: null,
+  computerPlayer: null,
+  humanPlayer: null,
+  placementBoardBoard: new Board(),
+  count: 6,
+  direction: 'vertical',
+};
+
 document.addEventListener('DOMContentLoaded', () => {
   const placementWindow = document.querySelector('.placement');
   const placeButton = document.querySelector('.change-positions');
@@ -13,67 +26,99 @@ document.addEventListener('DOMContentLoaded', () => {
   });
 
   const placementBoard = document.querySelector('.placement .board');
-  let placementBoardBoard = new Board();
+  const placementText = document.querySelector('.placement p');
   const directionButton = document.querySelector('.direction');
   const resetButton = document.querySelector('.reset');
+  const randomButton = document.querySelector('.random');
 
   createBoard(placementBoard);
 
-  let count = 6;
-  let direction = 'vertical';
-
   resetButton.addEventListener('click', () => {
     createBoard(placementBoard);
-    count = 6;
-    placementBoardBoard = new Board();
-  })
-  
-  directionButton.addEventListener('click', () => {
-    if (direction == 'vertical') {
-      direction = 'horizontal';
-      directionButton.textContent = 'horizontal'
-    } else {
-      direction = 'vertical';
-      directionButton.textContent = 'vertical'
-    }
-  })
+    gameState.count = 6;
+    gameState.placementBoardBoard = new Board();
+    placementText.textContent = `Place ${gameState.count}-length Ship`;
+  });
 
-  placementBoard.addEventListener('click', (event) => {
-    if (count == 0) {
-      return null
+  directionButton.addEventListener('click', () => {
+    if (gameState.direction === 'vertical') {
+      gameState.direction = 'horizontal';
+      directionButton.textContent = 'horizontal';
+    } else {
+      gameState.direction = 'vertical';
+      directionButton.textContent = 'vertical';
     }
+  });
+
+  placementBoard.addEventListener('mouseup', (event) => {
+    if (gameState.count === 1) {
+      return null;
+    }
+
     const cell = event.target;
     const x = parseInt(cell.dataset.row);
     const y = parseInt(cell.dataset.col);
 
-    if (placementBoardBoard.placeShip([x, y], count, direction, 'human')) {
-      count--;
+    if (
+      gameState.placementBoardBoard.placeShip(
+        [x, y],
+        gameState.count,
+        gameState.direction,
+        'human',
+      )
+    ) {
+      gameState.count--;
+      updateText();
     } else {
-      return null
+      return null;
     }
   });
 
+  randomButton.addEventListener('mouseup', () => {
+    if (gameState.count == 1) {
+      randomButton.style.animation = 'wrong 0.5s linear';
+      placementText.style.animation = 'bigger-green 1.5s linear 1';
+      setTimeout(() => {
+        randomButton.style.animation = '';
+      }, 500);
+      setTimeout(() => {
+        placementText.style.animation = '';
+      }, 1500);
+    } else {
+      gameState.placementBoardBoard.placeShipRandomly(gameState.count, 'human');
+      gameState.count--;
+      updateText();
+    }
+  });
+
+  function updateText() {
+    if (gameState.count === 1) {
+      placementText.textContent = 'All ships placed!';
+    } else {
+      placementText.textContent = `Place ${gameState.count}-length Ship`;
+    }
+  }
 
   const startButtons = document.querySelectorAll('.create-game');
   startButtons.forEach((button) => {
     button.addEventListener('click', () => {
-      placementWindow.style.display = 'none';
-      placeButton.style.display = 'block';
-      createGame(placementBoardBoard);
+      if (gameState.count !== 1) {
+        button.style.animation = 'wrong 0.5s linear 1';
+        placementText.style.animation = 'bigger-alert 1.5s linear 1';
+        setTimeout(() => {
+          button.style.animation = '';
+        }, 500);
+        setTimeout(() => {
+          placementText.style.animation = '';
+        }, 2000);
+      } else {
+        placementWindow.style.display = 'none';
+        placeButton.style.display = 'block';
+        createGame(gameState.placementBoardBoard, placementBoard);
+      }
     });
   });
 });
-
-let lastMoveMemory = [];
-let lastDirection = [];
-let forgetMoveCounter = 0;
-
-// I HATE HAVING SO MANY GLOBAL VARIABLES BUT IF I PUT THE EVENT LISTENER FUNCITON INSIDE OF ANOTHER
-// ONE THEN IT DOES NOT REMOVE AND COMPUTER STARTS DOING MORE THAN ONE MOVE PER TURN AAAAAAAAAAAAAAAA
-let computerBoardElement;
-let humanBoardElement;
-let computerPlayer;
-let humanPlayer;
 
 function handleBoardClick(event) {
   const cell = event.target;
@@ -82,63 +127,74 @@ function handleBoardClick(event) {
   const x = parseInt(cell.dataset.row);
   const y = parseInt(cell.dataset.col);
   if (
-    computerPlayer.board.memory.some(([memX, memY]) => memX === x && memY === y)
+    gameState.computerPlayer.board.memory.some(
+      ([memX, memY]) => memX === x && memY === y,
+    )
   ) {
     return;
   }
 
-  if (computerPlayer.board.receiveAttack(x, y)) {
-    cell.classList.add('hit');
-  } else {
-    cell.classList.add('missed');
+  switch (gameState.computerPlayer.board.receiveAttack(x, y)) {
+    case true:
+      cell.classList.add('hit');
+      console.log("HITT");
+      break;
+    case false:
+      cell.classList.add('missed');
+      break;
+    case -1:
+      cell.classList.add('hit');
+      alert('Game END! Human Victory.');
+      break;
+    default:
+      console.log('Unexpected result');
   }
 
-  computerMove(humanPlayer);
+
+  computerMove(gameState.humanPlayer);
 }
 
-function createGame(humanBoard) {
-  humanBoardElement = document.querySelector('.left-player .board');
-  computerBoardElement = document.querySelector('.right-player .board');
+function createGame(humanBoard, humanElement) {
+  gameState.humanBoardElement = document.querySelector('.left-player .board');
+  gameState.computerBoardElement = document.querySelector(
+    '.right-player .board',
+  );
 
   // RESET BOARD AND GAME STATE
-  humanBoardElement.innerHTML = '';
-  computerBoardElement.innerHTML = '';
-  computerBoardElement.removeEventListener('click', handleBoardClick);
+  gameState.humanBoardElement.innerHTML = '';
+  gameState.computerBoardElement.innerHTML = '';
+  gameState.computerBoardElement.removeEventListener('click', handleBoardClick);
 
-  lastMoveMemory = [];
-  lastDirection = [];
-  forgetMoveCounter = 0;
+  gameState.lastMoveMemory = [];
+  gameState.lastDirection = [];
+  gameState.forgetMoveCounter = 0;
   // -------------------------------
 
-  createBoard(humanBoardElement);
-  humanPlayer = new Player('human');
-  humanPlayer.board = humanBoard;
-  console.log(humanPlayer.board);
+  createBoard(gameState.humanBoardElement);
+  gameState.humanBoardElement.innerHTML = humanElement.innerHTML;
+  gameState.humanPlayer = new Player('human');
+  gameState.humanPlayer.board = humanBoard;
 
-  computerPlayer = new Player('computer');
-  computerPlayer.board.placeShipRandomly(5);
-  computerPlayer.board.placeShipRandomly(3);
-  computerPlayer.board.placeShipRandomly(2);
-  computerPlayer.board.placeShipRandomly(4);
-  computerPlayer.board.placeShipRandomly(6);
-  computerPlayer.board.placeShipRandomly(1);
+  gameState.computerPlayer = new Player('computer');
+  gameState.computerPlayer.board.placeShipRandomly(5);
+  gameState.computerPlayer.board.placeShipRandomly(3);
+  gameState.computerPlayer.board.placeShipRandomly(2);
+  gameState.computerPlayer.board.placeShipRandomly(4);
+  gameState.computerPlayer.board.placeShipRandomly(6);
 
-  createBoard(computerBoardElement, computerPlayer);
+  createBoard(gameState.computerBoardElement, gameState.computerPlayer);
 
   // add the new event listener
-  computerBoardElement.addEventListener('click', handleBoardClick);
+  gameState.computerBoardElement.addEventListener('click', handleBoardClick);
 }
 
 function computerMove(humanPlayer) {
   let x, y;
 
   // if previous hits array is not empty
-  if (lastMoveMemory.length > 0) {
-    let [lastX, lastY] = lastMoveMemory[0];
-
-    if (lastMoveMemory.length > 2) {
-      [lastX, lastY] = lastMoveMemory[lastMoveMemory.length - 1];
-    }
+  if (gameState.lastMoveMemory.length > 0) {
+    let [lastX, lastY] =
+      gameState.lastMoveMemory[gameState.lastMoveMemory.length - 1];
 
     const directions = [
       [0, 1], // right
@@ -147,7 +203,7 @@ function computerMove(humanPlayer) {
       [-1, 0], // up
     ];
 
-    if (lastDirection.length == 0) {
+    if (gameState.lastDirection.length === 0) {
       for (const [dx, dy] of directions) {
         const newX = lastX + dx;
         const newY = lastY + dy;
@@ -162,16 +218,17 @@ function computerMove(humanPlayer) {
             ([memX, memY]) => memX === newX && memY === newY,
           )
         ) {
-          lastDirection.push([dx, dy]);
-          lastDirection.push([-dx, -dy]);
+          gameState.lastDirection.push([dx, dy]);
+          gameState.lastDirection.push([-dx, -dy]);
 
           x = newX;
           y = newY;
+          console.log('undirected: last hit based');
           break; // valid adjacent cell
         }
       }
     } else {
-      for (const [dx, dy] of lastDirection) {
+      for (const [dx, dy] of gameState.lastDirection) {
         const newX = lastX + dx;
         const newY = lastY + dy;
 
@@ -187,8 +244,8 @@ function computerMove(humanPlayer) {
         ) {
           x = newX;
           y = newY;
+          console.log('directed: last hit based');
 
-          console.log('xD');
           break; // valid adjacent cell
         }
       }
@@ -196,8 +253,11 @@ function computerMove(humanPlayer) {
   }
 
   // if no adjacent cell, or no previous hit
-  if ((x === undefined || y === undefined) && lastMoveMemory.length > 0) {
-    lastMoveMemory.shift();
+  if (
+    (x === undefined || y === undefined) &&
+    gameState.lastMoveMemory.length > 1
+  ) {
+    gameState.lastMoveMemory.pop();
     computerMove(humanPlayer);
     return;
   }
@@ -212,23 +272,32 @@ function computerMove(humanPlayer) {
   const cell = document.querySelector(
     `.left-player .board .cell[data-row="${x}"][data-col="${y}"]`,
   );
-  if (humanPlayer.board.receiveAttack(x, y)) {
-    cell.classList.add('hit');
-    lastMoveMemory.push([x, y]);
-    forgetMoveCounter = 0;
-  } else {
-    cell.classList.add('missed');
-    forgetMoveCounter++;
-    lastDirection.shift();
+
+  switch (gameState.humanPlayer.board.receiveAttack(x, y)) {
+    case true:
+      cell.classList.add('hit');
+      gameState.lastMoveMemory.push([x, y]);
+      gameState.forgetMoveCounter = 0;
+      break;
+    case false:
+      cell.classList.add('missed');
+      gameState.forgetMoveCounter++;
+      gameState.lastDirection.pop();
+      break;
+    case -1:
+      cell.classList.add('hit');
+      alert('Game END! Computer victory.');
+      break;
+    default:
+      console.log('Unexpected result');
   }
 
-  if (forgetMoveCounter >= 2) {
-    lastDirection = [];
+  if (gameState.forgetMoveCounter > 2) {
+    gameState.lastDirection = [];
   }
-
   // forget last move if too many misses in a row
-  if (forgetMoveCounter >= 4) {
-    lastMoveMemory.shift();
-    forgetMoveCounter = 0;
+  if (gameState.forgetMoveCounter > 4) {
+    gameState.lastMoveMemory.shift();
+    gameState.forgetMoveCounter = 0;
   }
 }
