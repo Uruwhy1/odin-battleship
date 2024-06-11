@@ -4,6 +4,7 @@ import { createBoard } from './manipulatorDOM';
 import './styles.css';
 
 export const gameState = {
+  resultText: document.querySelector('.result'),
   lastMoveMemory: [],
   lastDirection: [],
   forgetMoveCounter: 0,
@@ -37,7 +38,7 @@ document.addEventListener('DOMContentLoaded', () => {
     createBoard(placementBoard);
     gameState.count = 6;
     gameState.placementBoardBoard = new Board();
-    placementText.textContent = `Place ${gameState.count}-length Ship`;
+    placementText.textContent = `Place ${gameState.count}-length ship`;
   });
 
   directionButton.addEventListener('click', () => {
@@ -95,7 +96,7 @@ document.addEventListener('DOMContentLoaded', () => {
     if (gameState.count === 1) {
       placementText.textContent = 'All ships placed!';
     } else {
-      placementText.textContent = `Place ${gameState.count}-length Ship`;
+      placementText.textContent = `Place ${gameState.count}-length ship`;
     }
   }
 
@@ -137,19 +138,23 @@ function handleBoardClick(event) {
   switch (gameState.computerPlayer.board.receiveAttack(x, y)) {
     case true:
       cell.classList.add('hit');
-      console.log("HITT");
+      console.log('HITT');
       break;
     case false:
       cell.classList.add('missed');
       break;
     case -1:
       cell.classList.add('hit');
-      alert('Game END! Human Victory.');
+      gameState.computerBoardElement.removeEventListener('click', handleBoardClick);
+      gameState.resultText.style.animation = 'game-ending 1.5s forwards';
+      setTimeout(() => {
+        gameState.resultText.style.animation = 'none';
+      }, 1500);
+      gameState.resultText.textContent = 'Game END! Human victory.';
       break;
     default:
       console.log('Unexpected result');
   }
-
 
   computerMove(gameState.humanPlayer);
 }
@@ -161,6 +166,7 @@ function createGame(humanBoard, humanElement) {
   );
 
   // RESET BOARD AND GAME STATE
+  gameState.resultText.display = 'none';
   gameState.humanBoardElement.innerHTML = '';
   gameState.computerBoardElement.innerHTML = '';
   gameState.computerBoardElement.removeEventListener('click', handleBoardClick);
@@ -286,7 +292,12 @@ function computerMove(humanPlayer) {
       break;
     case -1:
       cell.classList.add('hit');
-      alert('Game END! Computer victory.');
+      gameState.computerBoardElement.removeEventListener('click', handleBoardClick);
+      gameState.resultText.style.animation = 'game-ending 1.5s forwards';
+      setTimeout(() => {
+        gameState.resultText.style.animation = 'none';
+      }, 1500);
+      gameState.resultText.textContent = 'Game END! Computer victory.';
       break;
     default:
       console.log('Unexpected result');
