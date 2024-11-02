@@ -1,4 +1,5 @@
-import { gameState } from ".";
+import { gameState } from '.';
+import Board from './classes/gameboard';
 
 export function createBoard(boardElement) {
   boardElement.innerHTML = '';
@@ -21,11 +22,11 @@ export function createBoard(boardElement) {
       cell.addEventListener('mouseenter', (event) => handleMouseEnter(event));
       cell.addEventListener('mouseleave', handleMouseLeave);
       cell.addEventListener('mouseup', handleMouseLeave);
-
     }
 
     boardElement.appendChild(column);
   }
+  gameState.placementBoardBoard = new Board();
 }
 
 function handleMouseEnter(event) {
@@ -40,7 +41,7 @@ function handleMouseEnter(event) {
 
 function handleMouseLeave() {
   const cells = document.querySelectorAll('.ship-preview');
-  cells.forEach(cell => cell.classList.remove('ship-preview'));
+  cells.forEach((cell) => cell.classList.remove('ship-preview'));
 }
 
 function showPreview(row, col, length, orientation) {
@@ -48,7 +49,9 @@ function showPreview(row, col, length, orientation) {
   if (orientation === 'horizontal') {
     if (col + length <= 10) {
       for (let i = 0; i < length; i++) {
-        const previewCell = document.querySelector(`[data-row="${row}"][data-col="${col + i}"]`);
+        const previewCell = document.querySelector(
+          `[data-row="${row}"][data-col="${col + i}"]`,
+        );
         if (previewCell) {
           previewCell.classList.add('ship-preview');
         }
@@ -57,7 +60,9 @@ function showPreview(row, col, length, orientation) {
   } else {
     if (row + length <= 10) {
       for (let i = 0; i < length; i++) {
-        const previewCell = document.querySelector(`[data-row="${row + i}"][data-col="${col}"]`);
+        const previewCell = document.querySelector(
+          `[data-row="${row + i}"][data-col="${col}"]`,
+        );
         if (previewCell) {
           previewCell.classList.add('ship-preview');
         }

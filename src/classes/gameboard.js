@@ -87,6 +87,7 @@ export default class Board {
   }
 
   __checkShips() {
+    console.log(this.ships);
     if (this.ships.every((ship) => ship.isSunk())) {
       return -1;
     }

@@ -24,6 +24,10 @@ document.addEventListener('DOMContentLoaded', () => {
   placeButton.addEventListener('click', () => {
     placementWindow.style.display = 'flex';
     placeButton.style.display = 'none';
+
+    createBoard(placementBoard);
+    gameState.count = 6;
+    placementText.textContent = `Place ${gameState.count}-length ship`;
   });
 
   const placementBoard = document.querySelector('.placement .board');
@@ -37,7 +41,6 @@ document.addEventListener('DOMContentLoaded', () => {
   resetButton.addEventListener('click', () => {
     createBoard(placementBoard);
     gameState.count = 6;
-    gameState.placementBoardBoard = new Board();
     placementText.textContent = `Place ${gameState.count}-length ship`;
   });
 
@@ -100,24 +103,23 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   }
 
-  const startButtons = document.querySelectorAll('.create-game');
-  startButtons.forEach((button) => {
-    button.addEventListener('click', () => {
-      if (gameState.count !== 1) {
-        button.style.animation = 'wrong 0.5s linear 1';
-        placementText.style.animation = 'bigger-alert 1.5s linear 1';
-        setTimeout(() => {
-          button.style.animation = '';
-        }, 500);
-        setTimeout(() => {
-          placementText.style.animation = '';
-        }, 2000);
-      } else {
-        placementWindow.style.display = 'none';
-        placeButton.style.display = 'block';
-        createGame(gameState.placementBoardBoard, placementBoard);
-      }
-    });
+  const startButton = document.querySelector('.create-game');
+  startButton.addEventListener('click', () => {
+    if (gameState.count !== 1) {
+      startButton.style.animation = 'wrong 0.5s linear 1';
+      placementText.style.animation = 'bigger-alert 1.5s linear 1';
+      setTimeout(() => {
+        startButton.style.animation = '';
+      }, 500);
+      setTimeout(() => {
+        placementText.style.animation = '';
+      }, 2000);
+    } else {
+      placementWindow.style.display = 'none';
+      placeButton.style.display = 'block';
+
+      createGame(gameState.placementBoardBoard, placementBoard);
+    }
   });
 });
 
@@ -145,7 +147,10 @@ function handleBoardClick(event) {
       break;
     case -1:
       cell.classList.add('hit');
-      gameState.computerBoardElement.removeEventListener('click', handleBoardClick);
+      gameState.computerBoardElement.removeEventListener(
+        'click',
+        handleBoardClick,
+      );
       gameState.resultText.style.animation = 'game-ending 1.5s forwards';
       setTimeout(() => {
         gameState.resultText.style.animation = 'none';
@@ -292,7 +297,10 @@ function computerMove(humanPlayer) {
       break;
     case -1:
       cell.classList.add('hit');
-      gameState.computerBoardElement.removeEventListener('click', handleBoardClick);
+      gameState.computerBoardElement.removeEventListener(
+        'click',
+        handleBoardClick,
+      );
       gameState.resultText.style.animation = 'game-ending 1.5s forwards';
       setTimeout(() => {
         gameState.resultText.style.animation = 'none';
